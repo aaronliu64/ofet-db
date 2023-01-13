@@ -1,6 +1,9 @@
+# %%
+
 import pandas as pd
 import pymongo
 
+# %% 
 #this function takes a formatted excel file and returns a list of dictionaries where each dictionary has the key value pairs specified by the excel sheet
 def template_todict(filepath):
 
