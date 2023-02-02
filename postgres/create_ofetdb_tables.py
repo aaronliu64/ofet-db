@@ -24,26 +24,26 @@ cur.execute(
     CREATE TABLE IF NOT EXISTS EXPERIMENT_INFO (
         exp_id          SERIAL          PRIMARY KEY,
         source_type     VARCHAR(20)     NOT NULL,
-        metadata        JSONB
-    );
-    
-    CREATE TABLE IF NOT EXISTS LABORATORY (
-        exp_id          INT             DEFAULT NULL,
-        metadata     JSONB,
-        PRIMARY KEY(exp_id),
-        FOREIGN KEY(exp_id) REFERENCES EXPERIMENT_INFO(exp_id)
-            ON DELETE SET NULL ON UPDATE CASCADE        
-    );
-    
-    CREATE TABLE IF NOT EXISTS LITERATURE (
-        exp_id          INT             DEFAULT NULL,
-        doi             VARCHAR(50)     UNIQUE,
-        metadata     JSONB,
-        PRIMARY KEY(exp_id),
-        FOREIGN KEY(exp_id) REFERENCES EXPERIMENT_INFO(exp_id)
-            ON DELETE SET NULL ON UPDATE CASCADE
+        metadata        JSONB           UNIQUE
     );
     '''
+    # CREATE TABLE IF NOT EXISTS LABORATORY (
+    #     exp_id          INT             DEFAULT NULL,
+    #     metadata     JSONB,
+    #     PRIMARY KEY(exp_id),
+    #     FOREIGN KEY(exp_id) REFERENCES EXPERIMENT_INFO(exp_id)
+    #         ON DELETE SET NULL ON UPDATE CASCADE        
+    # );
+    
+    # CREATE TABLE IF NOT EXISTS LITERATURE (
+    #     exp_id          INT             DEFAULT NULL,
+    #     doi             VARCHAR(50)     UNIQUE,
+    #     metadata     JSONB,
+    #     PRIMARY KEY(exp_id),
+    #     FOREIGN KEY(exp_id) REFERENCES EXPERIMENT_INFO(exp_id)
+    #         ON DELETE SET NULL ON UPDATE CASCADE
+    # );
+    
 )
 
 print("Table(s) created successfully")
@@ -67,7 +67,7 @@ cur.execute(
     
     CREATE TABLE IF NOT EXISTS SOLVENT (
         solvent_id              SERIAL          PRIMARY KEY,
-        pubchem_CID             INT,
+        pubchem_CID             INT             UNIQUE,
         solvent_name            VARCHAR(50),
         metadata                JSONB                  
     );
@@ -78,7 +78,8 @@ cur.execute(
         Mn_kDa                  FLOAT,
         Mw_kDa                  FLOAT,
         dispersity              FLOAT,
-        metadata                JSONB              
+        metadata                JSONB,
+        UNIQUE(polymer_name, Mn_kDa, Mw_kDa, dispersity, metadata)       
     );
     
     CREATE TABLE IF NOT EXISTS SOLUTION_MAKEUP_SOLVENT (
@@ -131,7 +132,8 @@ cur.execute(
         solution_treatment_step_id      SERIAL          PRIMARY KEY,
         treatment_type                  VARCHAR(20),
         parameters                      JSONB,
-        metadata                        JSONB
+        metadata                        JSONB,
+        UNIQUE(treatment_type, parameters, metadata)
     );
     
     CREATE TABLE IF NOT EXISTS SOLUTION_TREATMENT_ORDER (
@@ -143,7 +145,8 @@ cur.execute(
             ON DELETE SET NULL ON UPDATE CASCADE,        
         FOREIGN KEY(solution_treatment_step_id) REFERENCES SOLUTION_TREATMENT_STEP(solution_treatment_step_id)
             ON DELETE SET NULL ON UPDATE CASCADE,
-        PRIMARY KEY(solution_treatment_id, process_order)
+        PRIMARY KEY(solution_treatment_id, process_order),
+        UNIQUE(solution_treatment_id, process_order, solution_treatment_step_id)
     );
     
 
@@ -169,7 +172,8 @@ cur.execute(
     CREATE TABLE IF NOT EXISTS DEVICE_FABRICATION (
         device_fab_id       SERIAL      PRIMARY KEY,
         parameters          JSONB,
-        metadata            JSONB
+        metadata            JSONB,
+        UNIQUE(parameters, metadata)
     );
 
 
@@ -200,7 +204,8 @@ cur.execute(
         substrate_pretreat_step_id      SERIAL          PRIMARY KEY,
         treatment_type                  VARCHAR(20),
         parameters                      JSONB,
-        metadata                        JSONB
+        metadata                        JSONB,
+        UNIQUE(treatment_type, parameters, metadata)
     );
     
     CREATE TABLE IF NOT EXISTS SUBSTRATE_PRETREAT_ORDER (
@@ -213,6 +218,7 @@ cur.execute(
         FOREIGN KEY(substrate_pretreat_step_id) REFERENCES SUBSTRATE_PRETREAT_STEP(substrate_pretreat_step_id)
             ON DELETE SET NULL ON UPDATE CASCADE,
         PRIMARY KEY(substrate_pretreat_id, process_order)
+        UNIQUE(substrate_pretreat_id, process_order, substrate_pretreat_step_id)
     );
 
       '''
@@ -238,7 +244,7 @@ cur.execute(
         film_deposition_id      SERIAL          PRIMARY KEY,
         deposition_type         VARCHAR(30),
         parameters              JSONB,
-        metadata                JSONB
+        metadata                JSONB,
     );
 
       '''
