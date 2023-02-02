@@ -23,12 +23,13 @@ cur.execute(
     '''
     CREATE TABLE IF NOT EXISTS EXPERIMENT_INFO (
         exp_id          SERIAL          PRIMARY KEY,
-        source_type     VARCHAR(20)     NOT NULL        
+        source_type     VARCHAR(20)     NOT NULL,
+        metadata        JSONB
     );
     
     CREATE TABLE IF NOT EXISTS LABORATORY (
         exp_id          INT             DEFAULT NULL,
-        source_data     JSONB,
+        metadata     JSONB,
         PRIMARY KEY(exp_id),
         FOREIGN KEY(exp_id) REFERENCES EXPERIMENT_INFO(exp_id)
             ON DELETE SET NULL ON UPDATE CASCADE        
@@ -37,12 +38,12 @@ cur.execute(
     CREATE TABLE IF NOT EXISTS LITERATURE (
         exp_id          INT             DEFAULT NULL,
         doi             VARCHAR(50)     UNIQUE,
-        source_data     JSONB,
+        metadata     JSONB,
         PRIMARY KEY(exp_id),
         FOREIGN KEY(exp_id) REFERENCES EXPERIMENT_INFO(exp_id)
             ON DELETE SET NULL ON UPDATE CASCADE
     );
-      '''
+    '''
 )
 
 print("Table(s) created successfully")
@@ -67,7 +68,7 @@ cur.execute(
     CREATE TABLE IF NOT EXISTS SOLVENT (
         solvent_id              SERIAL          PRIMARY KEY,
         pubchem_CID             INT,
-        iupac_name              VARCHAR(50),
+        solvent_name            VARCHAR(50),
         metadata                JSONB                  
     );
     
