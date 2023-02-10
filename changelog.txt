@@ -1,0 +1,3 @@
+change data validation step to allow all values
+details for a range cell
+polymer insulator reference is misplaced
