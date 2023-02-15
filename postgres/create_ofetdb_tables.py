@@ -217,7 +217,7 @@ cur.execute(
             ON DELETE SET NULL ON UPDATE CASCADE,
         FOREIGN KEY(substrate_pretreat_step_id) REFERENCES SUBSTRATE_PRETREAT_STEP(substrate_pretreat_step_id)
             ON DELETE SET NULL ON UPDATE CASCADE,
-        PRIMARY KEY(substrate_pretreat_id, process_order)
+        PRIMARY KEY(substrate_pretreat_id, process_order),
         UNIQUE(substrate_pretreat_id, process_order, substrate_pretreat_step_id)
     );
 
@@ -244,7 +244,7 @@ cur.execute(
         film_deposition_id      SERIAL          PRIMARY KEY,
         deposition_type         VARCHAR(30),
         parameters              JSONB,
-        metadata                JSONB,
+        metadata                JSONB
     );
 
       '''
