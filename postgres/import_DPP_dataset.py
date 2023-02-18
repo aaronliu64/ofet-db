@@ -3,14 +3,39 @@
 import pandas as pd
 import numpy as np
 import psycopg2 as pg
-from psycopg2.extras import Json
 import os
-import requests
+from psycopg2.extras import Json
+from psycopg2.extensions import AsIs
+import functools
 import json
+import sys
+
+# %%
+
+import requests
 import bibtexparser
 import pprint
 
-# %%
+# Postgres python
+from psycopg2.extras import Json
+
+def addapt_numpy_float64(numpy_float64):
+    return AsIs(numpy_float64)
+
+def addapt_numpy_int64(numpy_int64):
+    return AsIs(numpy_int64)
+
+def nan_to_null(f,
+        _NULL=AsIs('NULL'),
+        _Float=pg.extensions.Float):
+    if not np.isnan(f):
+        return _Float(f)
+    return _NULL
+
+pg.extensions.register_adapter(np.float64, addapt_numpy_float64)
+pg.extensions.register_adapter(np.int64, addapt_numpy_int64)
+pg.extensions.register_adapter(float, nan_to_null)
+
 param_dict = {
     "host"      : "127.0.0.1",
     "database"  : "ofetdb_v2",
@@ -24,12 +49,12 @@ def connect(params_dict):
     conn = None
     try:
         # connect to the PostgreSQL server
-        print('Connecting to the PostgreSQL database...')
+#         print('Connecting to the PostgreSQL database...')
         conn = pg.connect(**params_dict)
     except (Exception, pg.DatabaseError) as error:
         print(error)
         sys.exit(1) 
-    print("Connection successful")
+#     print("Connection successful")
     return conn
 
 def doi2dict(doi):
@@ -53,48 +78,52 @@ def doi2dict(doi):
     #return dict of metadata
     return bibdata.entries[0]
 
+def row_to_json(a):
+    
+    """Takes a Series object as an input, with columns in dot notation according to 
+    ofetdb schema, converts to a json formatted dict. Must use Excel literature/expt template with dot notation"""
+
+    output = {}
+    for key, value in a.iteritems():
+        if pd.isnull(value) == False: #Only add key:value if not empty in the json
+            path = key.split('.')
+            target = functools.reduce(lambda d, k: d.setdefault(k, {}), path[:-1], output)
+            target[path[-1]] = value
+    return output
 
 # %%
+
 fname = '../db_feed/DPPDTT/DPPDTT_dataset_feed_D6_ALcopy.xlsx'
-df = pd.read_excel(fname, sheet_name='sample')
+sheetnames = pd.ExcelFile(fname).sheet_names[3:]
+# data = {key:None for key in sheetnames}
 
+for SN in sheetnames:
+    sheet = pd.read_excel(fname, sheet_name=SN)
+    print(SN)
+    for i, row in sheet.iterrows():
+        entry = row_to_json(row)
 
-# %% 
-literature = pd.unique(df['doi'])
+        for key in entry.keys():
+            if type(entry[key])==dict:
+                entry[key]=Json(entry[key])
+        
+#         print(entry)
+        conn = connect(param_dict)
+        cur = conn.cursor()
+        
+        columns = entry.keys()
+        values = [entry[column] for column in columns]
+        sql = 'insert into %s (%s) values %s ON CONFLICT DO NOTHING'
 
-labmask = ~pd.isna(df.lab_notebook_id)
-lab_raw = pd.unique(df.lab_notebook_id[labmask])
-
-lab_id_split = np.vstack([[s.split('_',2)[0]+'_'+s.split('_',2)[1], s.split('_',2)[2]] for s in lab_raw])
-
-lab_notebook_id = np.unique(lab_id_split[:,0])
-sample_id = lab_id_split[:,1]
-# %%
-
-param_dic = {
-    "host"      : "127.0.0.1",
-    "database"  : "ofetdb_v2",
-    "user"      : "postgres",
-    "password"  : "password",
-    "port"      : "5432",
-}
-
-def connect(params_dic):
-    """ Connect to the PostgreSQL database server """
-    conn = None
-    try:
-        # connect to the PostgreSQL server
-        print('Connecting to the PostgreSQL database...')
-        conn = pg.connect(**params_dic)
-    except (Exception, pg.DatabaseError) as error:
-        print(error)
-        sys.exit(1) 
-    print("Connection successful")
-    return conn
-
-conn = connect(param_dic)
-
-# Add unique DOIs to ofetdb
-
-
-# Add unique experiments to ofetdb
+        try:
+            cur.execute(sql, (AsIs(SN), AsIs(','.join(columns)), tuple(values)) )
+            conn.commit()
+#             print("Operation Successful")
+        except (Exception, pg.DatabaseError) as error:
+            print("Error: %s" % error)
+            conn.rollback()
+        
+        cur.close()
+        conn.close()
+    print("Operation Successful")
+# sheet = data[sheetnames[0]]

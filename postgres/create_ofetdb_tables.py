@@ -22,28 +22,11 @@ cur = conn.cursor()
 cur.execute(
     '''
     CREATE TABLE IF NOT EXISTS EXPERIMENT_INFO (
-        exp_id          SERIAL          PRIMARY KEY,
-        source_type     VARCHAR(20)     NOT NULL,
-        metadata        JSONB           UNIQUE
+        exp_id              SERIAL          PRIMARY KEY,
+        citation_type       VARCHAR(20)     NOT NULL,
+        meta                JSONB           UNIQUE
     );
     '''
-    # CREATE TABLE IF NOT EXISTS LABORATORY (
-    #     exp_id          INT             DEFAULT NULL,
-    #     metadata     JSONB,
-    #     PRIMARY KEY(exp_id),
-    #     FOREIGN KEY(exp_id) REFERENCES EXPERIMENT_INFO(exp_id)
-    #         ON DELETE SET NULL ON UPDATE CASCADE        
-    # );
-    
-    # CREATE TABLE IF NOT EXISTS LITERATURE (
-    #     exp_id          INT             DEFAULT NULL,
-    #     doi             VARCHAR(50)     UNIQUE,
-    #     metadata     JSONB,
-    #     PRIMARY KEY(exp_id),
-    #     FOREIGN KEY(exp_id) REFERENCES EXPERIMENT_INFO(exp_id)
-    #         ON DELETE SET NULL ON UPDATE CASCADE
-    # );
-    
 )
 
 print("Table(s) created successfully")
@@ -62,33 +45,33 @@ cur.execute(
     '''
     CREATE TABLE IF NOT EXISTS SOLUTION (
         solution_id             SERIAL          PRIMARY KEY,
-        concentration_mg_ml     FLOAT                  
+        concentration           FLOAT                  
     );
     
     CREATE TABLE IF NOT EXISTS SOLVENT (
-        solvent_id              SERIAL          PRIMARY KEY,
-        pubchem_CID             INT             UNIQUE,
-        solvent_name            VARCHAR(50),
-        metadata                JSONB                  
+        pubchem_cid             INT             PRIMARY KEY,
+        iupac_name              VARCHAR(50)     UNIQUE,
+        meta                    JSONB         
     );
     
     CREATE TABLE IF NOT EXISTS POLYMER (
         polymer_id              SERIAL          PRIMARY KEY,
-        polymer_name            VARCHAR(500),
-        Mn_kDa                  FLOAT,
-        Mw_kDa                  FLOAT,
+        common_name             VARCHAR(50),
+        iupac_name              VARCHAR(500),
+        mn                      FLOAT,
+        mw                      FLOAT,
         dispersity              FLOAT,
-        metadata                JSONB,
-        UNIQUE(polymer_name, Mn_kDa, Mw_kDa, dispersity, metadata)       
+        meta                    JSONB,
+        UNIQUE(common_name, iupac_name, mn, mw, dispersity, meta)       
     );
     
     CREATE TABLE IF NOT EXISTS SOLUTION_MAKEUP_SOLVENT (
         solution_id             INT             NOT NULL,
-        solvent_id              INT             NOT NULL,
-        solvent_vol_pct         FLOAT,
+        solvent_id              INT,
+        vol_frac                FLOAT,
         
         PRIMARY KEY(solution_id, solvent_id),
-        FOREIGN KEY(solvent_id) REFERENCES SOLVENT(solvent_id)
+        FOREIGN KEY(solvent_id) REFERENCES SOLVENT(pubchem_cid)
             ON DELETE SET NULL ON UPDATE CASCADE,
         FOREIGN KEY(solution_id) REFERENCES SOLUTION(solution_id)
             ON DELETE SET NULL ON UPDATE CASCADE
@@ -97,7 +80,7 @@ cur.execute(
     CREATE TABLE IF NOT EXISTS SOLUTION_MAKEUP_POLYMER (
         solution_id             INT,
         polymer_id              INT,
-        polymer_wt_pct          FLOAT,
+        wt_frac                 FLOAT,
         
         PRIMARY KEY(solution_id, polymer_id),
         FOREIGN KEY(polymer_id) REFERENCES POLYMER(polymer_id)
@@ -130,10 +113,10 @@ cur.execute(
     
     CREATE TABLE IF NOT EXISTS SOLUTION_TREATMENT_STEP (
         solution_treatment_step_id      SERIAL          PRIMARY KEY,
-        treatment_type                  VARCHAR(20),
-        parameters                      JSONB,
-        metadata                        JSONB,
-        UNIQUE(treatment_type, parameters, metadata)
+        treatment_type                  VARCHAR(30),
+        params                          JSONB,
+        meta                            JSONB,
+        UNIQUE(treatment_type, params, meta)
     );
     
     CREATE TABLE IF NOT EXISTS SOLUTION_TREATMENT_ORDER (
@@ -171,9 +154,9 @@ cur.execute(
     
     CREATE TABLE IF NOT EXISTS DEVICE_FABRICATION (
         device_fab_id       SERIAL      PRIMARY KEY,
-        parameters          JSONB,
-        metadata            JSONB,
-        UNIQUE(parameters, metadata)
+        params              JSONB,
+        meta                JSONB,
+        UNIQUE(params, meta)
     );
 
 
@@ -203,9 +186,9 @@ cur.execute(
     CREATE TABLE IF NOT EXISTS SUBSTRATE_PRETREAT_STEP (
         substrate_pretreat_step_id      SERIAL          PRIMARY KEY,
         treatment_type                  VARCHAR(20),
-        parameters                      JSONB,
-        metadata                        JSONB,
-        UNIQUE(treatment_type, parameters, metadata)
+        params                      JSONB,
+        meta                        JSONB,
+        UNIQUE(treatment_type, params, meta)
     );
     
     CREATE TABLE IF NOT EXISTS SUBSTRATE_PRETREAT_ORDER (
@@ -243,8 +226,10 @@ cur.execute(
     CREATE TABLE IF NOT EXISTS FILM_DEPOSITION (
         film_deposition_id      SERIAL          PRIMARY KEY,
         deposition_type         VARCHAR(30),
-        parameters              JSONB,
-        metadata                JSONB
+        params                  JSONB,
+        meta                    JSONB,
+        
+        UNIQUE(film_deposition_id, deposition_type, params, meta)
     );
 
       '''
@@ -273,8 +258,9 @@ cur.execute(
     CREATE TABLE IF NOT EXISTS POSTPROCESS_STEP (
         postprocess_step_id             SERIAL          PRIMARY KEY,
         treatment_type                  VARCHAR(30),
-        parameters                      JSONB,
-        metadata                        JSONB
+        params                          JSONB,
+        meta                            JSONB,
+        UNIQUE(postprocess_step_id, treatment_type, params, meta)
     );
     
     CREATE TABLE IF NOT EXISTS POSTPROCESS_ORDER (
@@ -282,6 +268,7 @@ cur.execute(
         process_order                   INT,
         postprocess_step_id             INT,
         
+        UNIQUE(postprocess_id, process_order, postprocess_step_id),
         FOREIGN KEY(postprocess_id) REFERENCES POSTPROCESS(postprocess_id)
             ON DELETE SET NULL ON UPDATE CASCADE,
         FOREIGN KEY(postprocess_step_id) REFERENCES POSTPROCESS_STEP(postprocess_step_id)
@@ -316,7 +303,9 @@ cur.execute(
         substrate_pretreat_id   INT,
         film_deposition_id      INT,
         postprocess_id          INT,
-        metadata                JSONB,
+        meta                    JSONB,
+        
+        UNIQUE(process_id, solution_id, solution_treatment_id, device_fab_id, substrate_pretreat_id, film_deposition_id, postprocess_id, meta),
         
         FOREIGN KEY(solution_id) REFERENCES SOLUTION(solution_id)
             ON DELETE SET NULL ON UPDATE CASCADE,
@@ -356,8 +345,9 @@ cur.execute(
         sample_id       SERIAL          PRIMARY KEY,
         exp_id          INT,
         process_id      INT,
-        metadata        JSONB,
+        meta            JSONB,
         
+        UNIQUE(sample_id, exp_id, process_id, meta),
         FOREIGN KEY(exp_id) REFERENCES EXPERIMENT_INFO(exp_id)
             ON DELETE SET NULL ON UPDATE CASCADE,
         FOREIGN KEY(process_id) REFERENCES OFET_PROCESS(process_id)
@@ -391,8 +381,9 @@ cur.execute(
         measurement_type    VARCHAR(30),
         filepath            VARCHAR(500),
         data                JSONB,
-        metadata            JSONB,
+        meta                JSONB,
         
+        UNIQUE(measurement_id, sample_id),
         FOREIGN KEY(sample_id) REFERENCES SAMPLE(sample_id)
             ON DELETE SET NULL ON UPDATE CASCADE
 
