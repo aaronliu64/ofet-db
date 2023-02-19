@@ -1,4 +1,4 @@
-# %%
+# %% Import Libraries
 
 import pandas as pd
 import numpy as np
@@ -10,7 +10,7 @@ import functools
 import json
 import sys
 
-# %%
+# %% Helper Functions
 
 import requests
 import bibtexparser
@@ -91,7 +91,7 @@ def row_to_json(a):
             target[path[-1]] = value
     return output
 
-# %%
+# %% Insert Processes
 
 fname = '../db_feed/DPPDTT/DPPDTT_dataset_feed_D6_ALcopy.xlsx'
 sheetnames = pd.ExcelFile(fname).sheet_names[3:]
@@ -99,7 +99,7 @@ sheetnames = pd.ExcelFile(fname).sheet_names[3:]
 
 for SN in sheetnames:
     sheet = pd.read_excel(fname, sheet_name=SN)
-    print(SN)
+    print('Inserting tuples into {}...'.format(SN))
     for i, row in sheet.iterrows():
         entry = row_to_json(row)
 
@@ -127,3 +127,40 @@ for SN in sheetnames:
         conn.close()
     print("Operation Successful")
 # sheet = data[sheetnames[0]]
+
+# %% Insert Measurements
+
+fname = '../db_feed/DPPDTT/DPPDTT_dataset_feed_D6_measurements.xlsx'
+sheetnames = pd.ExcelFile(fname).sheet_names
+
+
+for SN in sheetnames[2:]:
+    sheet = pd.read_excel(fname, sheet_name=SN)
+    print('Inserting tuples from {} into MEASUREMENT...'.format(SN))
+    for i, row in sheet.iterrows():
+        entry = row_to_json(row)
+    
+        for key in entry.keys():
+            if type(entry[key])==dict:
+                entry[key]=Json(entry[key])
+    
+    #         print(entry)
+        conn = connect(param_dict)
+        cur = conn.cursor()
+    
+        columns = entry.keys()
+        values = [entry[column] for column in columns]
+        sql = 'insert into measurement (%s) values %s ON CONFLICT DO NOTHING'
+    
+        try:
+            cur.execute(sql, (AsIs(','.join(columns)), tuple(values)) )
+            conn.commit()
+    #             print("Operation Successful")
+        except (Exception, pg.DatabaseError) as error:
+            print("Error: %s" % error)
+            conn.rollback()
+            
+            cur.close()
+            conn.close()
+        
+    print("Operation Successful")
