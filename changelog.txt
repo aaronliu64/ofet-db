@@ -1,0 +1,6 @@
+change data validation step to allow all values
+details for a range cell
+polymer insulator reference is misplaced
+
+
+What happens when solvent is not reported? Solution: solution_makeup_solvent will just not have an entry
