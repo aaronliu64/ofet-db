@@ -13,7 +13,7 @@ import sys
 # %% Helper Functions
 
 import requests
-import bibtexparser
+# import bibtexparser
 import pprint
 
 # Postgres python
