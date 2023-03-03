@@ -1,0 +1,33 @@
+1. Insert a default into sample
+
+`INSERT INTO sample VALUES (default)`
+
+2. Extract table information for experiment_info from template's Data Origin sheet
+
+Query check if an experiment already exists with the given information: citation_type, metadata
+
+	if yes: assign sample -> exp_id = the existing exp_id
+	if no: Insert new experiment into EXPERIMENT_INFO and assign that exp_id 
+
+3. Extract table information for all solution tables from template's SOLUTION_MAKEUP
+
+If solution and exp_info match, then assign existing solution_id. If not, then add a new solution with the solution details
+
+Store the solution_id
+
+4. Extract device geometry for DEVICE_FABRICATION table
+
+5. Extract film deposition information for FILM_DEPOSITION table
+
+6. Extract the various subprocess recipes for SOLUTION_TREATMENT, SUBSTRATE_PRETREAT, POST_PROCESS tables. These _ids can match perfectly to previous recipes. If recipe match, use id. If not, add new.
+
+7. Compare process with all sub_process _ids. If match, then use matched process id. Else, make new process_id
+
+8. Fill in sample info with all ids
+
+9. For every characterization item, make a new measurement_id, with the sample_id saved from before. 
+
+9a. Add device data
+9b. Add characterization data
+
+svmore2@illinois.edu
