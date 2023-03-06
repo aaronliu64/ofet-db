@@ -1,6 +1,4 @@
-1. Insert a default into sample
-
-`INSERT INTO sample VALUES (default)`
+1. Read the completed template using the data insertion functions
 
 2. Extract table information for experiment_info from template's Data Origin sheet
 
@@ -23,11 +21,15 @@ Store the solution_id
 
 7. Compare process with all sub_process _ids. If match, then use matched process id. Else, make new process_id
 
-8. Fill in sample info with all ids
+8. Insert into sample
+
+`INSERT INTO sample VALUES (...)`
 
 9. For every characterization item, make a new measurement_id, with the sample_id saved from before. 
 
 9a. Add device data
 9b. Add characterization data
+
+
 
 svmore2@illinois.edu
