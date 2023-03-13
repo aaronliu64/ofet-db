@@ -5,7 +5,7 @@
 import psycopg2
 
 kwargs = {
-    'database': 'ofetdb_v2',
+    'database': 'ofetdb_test_env',
     'user': 'postgres',
     'password': 'password',
     'host': '127.0.0.1',
@@ -23,8 +23,9 @@ cur.execute(
     '''
     CREATE TABLE IF NOT EXISTS EXPERIMENT_INFO (
         exp_id              SERIAL          PRIMARY KEY,
-        citation_type       VARCHAR(20)     NOT NULL,
-        meta                JSONB           UNIQUE
+        citation_type       VARCHAR(20),
+        meta                JSONB,
+        UNIQUE(citation_type, meta)
     );
     '''
 )
