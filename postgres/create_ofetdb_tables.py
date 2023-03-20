@@ -5,7 +5,7 @@
 import psycopg2
 
 kwargs = {
-    'database': 'ofetdb_test_env',
+    'database': 'ofetdb_testenv',
     'user': 'postgres',
     'password': 'password',
     'host': '127.0.0.1',
