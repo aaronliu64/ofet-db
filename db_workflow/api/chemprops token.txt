@@ -1,0 +1,10 @@
+API URL: https://materialsmine.org/nmr/api/chemprops 
+ 
+API Token: {
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMzE5NzU2IiwiZ2l2ZW5OYW1lIjoiQWFyb24iLCJzbiI6IkxpdSIsImRpc3BsYXlOYW1lIjoiQWFyb24gTGl1IiwiaXNUZXN0VXNlciI6ZmFsc2UsImlzQWRtaW4iOmZhbHNlLCJpc1VzZXIiOnRydWUsIm1haWwiOiJhbGl1MzE5QGdhdGVjaC5lZHUiLCJpc0Fub255bW91cyI6ZmFsc2UsInVzZXJFeGlzdHMiOnRydWUsImlhdCI6MTY3ODI4MTA0Nn0.e4TOO-f-piOBy1Sad3SWyDZtZ1nzRUK6TdhdTmBt4fw",
+  "email": "aliu319@gatech.edu"
+} 
+
+'Content-Type': 'application/json',
+ 
+Authorization: Bearer <token>
