@@ -1,6 +1,6 @@
-1. Read the completed template using the data insertion functions
+1. Read the completed template using the data insertion functions - Done
 
-2. Extract table information for experiment_info from template's Data Origin sheet
+2. Extract table information for experiment_info from template's Data Origin sheet - Done
 
 Query check if an experiment already exists with the given information: citation_type, metadata
 
