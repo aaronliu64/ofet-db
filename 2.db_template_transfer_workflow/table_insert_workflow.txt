@@ -1,0 +1,105 @@
+Authors : Aaron Liu, Rahul Venkatesh, Jessica Bonsu, Myeongyeon Lee
+
+Date Edited : 6/7/2023
+
+We will use three types of template files as practice :
+1. V6_example = this is an imaginary template not conatining real information 
+2. V6_example_1_real = this is a containing real information already present in the DB
+3. PII2T_OTS_CB_5mgmL_(speed)_70C_pair_air_AT.xlsx from the PII2T templates from the diao lab
+
+We will use these as practice to add OFETs with new materials and also use a template containing data already present to check for duplicates
+
+--------------------------------------------------------------------------------------------------------------------
+To do : 
+
+
+Task 1 : Read and Extract Data from sheets in template 
+
+- Read the completed template using the data insertion functions and store information as a dictionary- Done by Aaron 
+
+Task 2 : Transferring information from appropriate tables in data base
+
+1. Checking and Storing Experiment Information
+
+	- Extract table information for EXPERIMENT_INFO from template's "Data Origin" sheet
+
+	- Query check if an experiment already exists with the given information: citation_type, metadata
+
+		if yes: assign sample -> exp_id = the existing exp_id
+		if no: Insert new experiment into EXPERIMENT_INFO and assign new exp_id 
+
+	- Use Doi function to generate meta data for experiments from literature
+
+2. Checking and Storing Solution Information 
+
+	- Extract table information for all SOLUTION tables (POLYMER, SOLVENT, POLYMER_MAKEUP, SOLVENT_MAKEUP) from template's "Solution_Makeup" sheet
+
+	- Query check if the solvent/s already exists in the SOLVENT table with the given information: pubchem_cid, iupac_name
+
+		if yes: assign solvent_id in SOLVENT_MAKEUP -> the existing solvents pubchem_id
+		if no: add new solvent to table and assign solvent_id in SOLVENT_MAKEUP as the new solvents pubchem_id 
+
+	- Query check if the polymer/s already exists with the given information: common_name, iupac_name, mw, mn, dispersity, meta
+
+		if yes: assign polymer_id in POLYMER_MAKEUP -> the existing polymers polymer_id
+		if no: Insert new polymer into POLYMER table and assign new polymer_id
+
+	- add wt_frac and vol_frac to POLYMER_MAKEUP and SOLVENT_MAKEUP
+	- add concentration to SOLUTION table
+	- how to generate SOLUTION_ID ??
+
+	** If solution and exp_info match, then assign existing solution_id. If not, then add a new solution with the solution details
+
+        - Store the solution_id in OFET_PROCESS
+
+3. Checking and Storing Device Information
+
+	-  Extract device geometry for DEVICE_FABRICATION table from "Device Fabrication" sheet
+
+	- Query check if the device geometry already exists in the DEVICE_SUBSTRATE table with the given information: parameters, meta
+
+		if yes: assign device_id in OFET_PROCESS -> the existing devices device_substrate_id
+		if no: add new device geometry to DEVICE_SUBSTRATE table and assign device_substrate_id in OFET_PROCESS as the new device_substrate_id
+
+4. Checking and Storing Film Deposition Information 
+
+	- Extract film deposition information for FILM_DEPOSITION table from "Coating Process" sheet
+
+	- Query check if the film deposition information already exists in the FILM_DEPOSITION table with the given information: deposition_type, params, meta
+
+		if yes: assign film_deposition_id in OFET_PROCESS -> the existing film_deposition_id
+		if no: add new film deposition information to FILM_DEPOSITION table and assign film_deposition_id in OFET_PROCESS as the new film_deposition_id
+
+5. Extract the various subprocess recipes for SOLUTION_TREATMENT, SUBSTRATE_PRETREAT, POST_PROCESS tables from "Solution Treatment", "Substrate Pretreat" and "Post Processing" sheets. These _ids can match perfectly to previous recipes. If recipe match, use id. If not, add new.
+
+	** showing an example for solution treatment but repeat similarly for substrate treatment and post processing
+	
+	- Extract solution treatment information for SOLUTION_TREATMENT_STEP table from "Solution Treatment" sheet
+	
+	- Query check if the solution treatment information already exists in the SOLUTION_TREATMENT_STEP table with the given information: treatment_type, params, meta
+
+		if yes: assign solution_treatment_step_id in SOLUTION_TREATMENT_ORDER -> the existing solution_treatment_step_id
+		if no: add new solution_treatment_step information to SOLUTION_TREATMENT_STEP table and assign solution_treatment_step_id in SOLUTION_TREATMENT_ORDER as the new solution_treatment_step_id
+
+	- Question : how to generate solution_treatment_id using solution_treatment_step_id and process_order?
+
+6. Compare process with all sub_process _ids. If match, then use matched process id. Else, make new process_id
+
+7. Insert into SAMPLE
+
+`INSERT INTO sample VALUES (...)`
+
+8. For every characterization item, make a new measurement_id, with the sample_id saved from before. 
+
+	- Add device data
+	- Add characterization data
+
+
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Task Assignments : 
+
+MYl : experiment info and measurement info
+Jessica : Device Substrate info and solution info
+Rahul : film deposition info, solution treatment info, substrate pretreat and post process info 
+
