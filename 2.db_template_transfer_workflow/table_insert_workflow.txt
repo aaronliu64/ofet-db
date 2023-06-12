@@ -21,7 +21,7 @@ Task 2 : Transferring information from appropriate tables in data base
 
 1. Checking and Storing Experiment Information
 
-	- Extract table information for EXPERIMENT_INFO from template's "Data Origin" sheet
+	- Extract table information for EXPERIMENT_INFO from template's "Data Origin" sheets
 
 	- Query check if an experiment already exists with the given information: citation_type, metadata
 
