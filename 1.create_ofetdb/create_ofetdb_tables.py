@@ -51,8 +51,9 @@ cur.execute(
     
     CREATE TABLE IF NOT EXISTS SOLVENT (
         pubchem_cid             INT             PRIMARY KEY,
-        iupac_name              VARCHAR(50)     UNIQUE,
-        meta                    JSONB         
+        iupac_name              VARCHAR(50),
+        meta                    JSONB,
+        UNIQUE(iupac_name, meta)          
     );
     
     CREATE TABLE IF NOT EXISTS POLYMER (
