@@ -19,7 +19,7 @@ Task 1 : Read and Extract Data from sheets in template
 
 Task 2 : Transferring information from appropriate tables in data base
 
-1. Checking and Storing Experiment Information
+1. Checking and Storing Experiment Information - DONE
 
 	- Extract table information for EXPERIMENT_INFO from template's "Data Origin" sheet
 
@@ -30,11 +30,14 @@ Task 2 : Transferring information from appropriate tables in data base
 
 	- Use Doi function to generate meta data for experiments from literature
 
+	** Concern : 
+	- If a user is entering information from a publication that already exists in the database, i.e. doi is already present, but the meta information they provide contains more information like first name/last name etc. Do we replace existing record with new meta information or make a new record with new exp_id
+
 2. Checking and Storing Solution Information 
 
-	- Extract table information for all SOLUTION tables (POLYMER, SOLVENT, POLYMER_MAKEUP, SOLVENT_MAKEUP) from template's "Solution_Makeup" sheet
+	- Extract table information for all SOLUTION tables (SOLUTION,POLYMER, SOLVENT, POLYMER_MAKEUP, SOLVENT_MAKEUP) from template's "Solution_Makeup" sheet
 
-	- Query check if the solvent/s already exists in the SOLVENT table with the given information: pubchem_cid, iupac_name
+	- Query check if the solvent/s already exists in the SOLVENT table with the given information:  pucbhem_cid,iupac_name, meta
 
 		if yes: assign solvent_id in SOLVENT_MAKEUP -> the existing solvents pubchem_id
 		if no: add new solvent to table and assign solvent_id in SOLVENT_MAKEUP as the new solvents pubchem_id 
@@ -88,6 +91,8 @@ Task 2 : Transferring information from appropriate tables in data base
 7. Insert into SAMPLE
 
 `INSERT INTO sample VALUES (...)`
+
+if there is a unique combination of exp_id and process_id already existing then use old sample id or else make new
 
 8. For every characterization item, make a new measurement_id, with the sample_id saved from before. 
 

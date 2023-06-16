@@ -5,7 +5,7 @@
 import psycopg2
 
 kwargs = {
-    'database': 'ofetdb_testenv',
+    'database': 'ofetdb_testenv_RV',
     'user': 'postgres',
     'password': 'Rahul2411!',
     'host': '127.0.0.1',
@@ -51,8 +51,9 @@ cur.execute(
     
     CREATE TABLE IF NOT EXISTS SOLVENT (
         pubchem_cid             INT             PRIMARY KEY,
-        iupac_name              VARCHAR(50)     UNIQUE,
-        meta                    JSONB         
+        iupac_name              VARCHAR(50),
+        meta                    JSONB,
+        UNIQUE(iupac_name, meta)          
     );
     
     CREATE TABLE IF NOT EXISTS POLYMER (
