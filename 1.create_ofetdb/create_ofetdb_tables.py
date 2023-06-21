@@ -50,10 +50,11 @@ cur.execute(
     );
     
     CREATE TABLE IF NOT EXISTS SOLVENT (
-        pubchem_cid             INT             PRIMARY KEY,
+        solvent_id              SERIAL          PRIMARY KEY,    
+        pubchem_cid             INT,
         iupac_name              VARCHAR(50),
         meta                    JSONB,
-        UNIQUE(iupac_name, meta)          
+        UNIQUE(pubchem_cid,iupac_name, meta)          
     );
     
     CREATE TABLE IF NOT EXISTS POLYMER (
@@ -73,7 +74,7 @@ cur.execute(
         vol_frac                FLOAT,
         
         PRIMARY KEY(solution_id, solvent_id),
-        FOREIGN KEY(solvent_id) REFERENCES SOLVENT(pubchem_cid)
+        FOREIGN KEY(solvent_id) REFERENCES SOLVENT(solvent_id)
             ON DELETE SET NULL ON UPDATE CASCADE,
         FOREIGN KEY(solution_id) REFERENCES SOLUTION(solution_id)
             ON DELETE SET NULL ON UPDATE CASCADE
@@ -231,7 +232,7 @@ cur.execute(
         params                  JSONB,
         meta                    JSONB,
         
-        UNIQUE(film_deposition_id, deposition_type, params, meta)
+        UNIQUE(deposition_type, params, meta)
     );
 
       '''
