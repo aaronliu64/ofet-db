@@ -49,11 +49,10 @@ cur.execute(
         concentration           FLOAT                  
     );
     
-    CREATE TABLE IF NOT EXISTS SOLVENT (
-        pubchem_cid             INT             PRIMARY KEY,
+    CREATE TABLE IF NOT EXISTS SOLVENT (    
+        pubchem_cid             INT         PRIMARY KEY,
         iupac_name              VARCHAR(50),
-        meta                    JSONB,
-        UNIQUE(iupac_name, meta)          
+        UNIQUE(iupac_name)          
     );
     
     CREATE TABLE IF NOT EXISTS POLYMER (
@@ -231,7 +230,7 @@ cur.execute(
         params                  JSONB,
         meta                    JSONB,
         
-        UNIQUE(film_deposition_id, deposition_type, params, meta)
+        UNIQUE(deposition_type, params, meta)
     );
 
       '''
