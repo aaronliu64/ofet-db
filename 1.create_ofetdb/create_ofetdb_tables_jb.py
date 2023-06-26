@@ -5,7 +5,7 @@
 import psycopg2
 
 kwargs = {
-    "host"      : "127.0.0.1",
+    "host"      : "localhost",
     "database"  : "ofetdb_testenv",
     "user"      : "postgres",
     "password"  : "password",
@@ -218,7 +218,7 @@ cur.execute(
         treatment_type                  VARCHAR(20),
         params                      JSONB,
         meta                        JSONB,
-        UNIQUE(treatment_type, params, meta)
+        UNIQUE(substrate_pretreat_step_id)
     );    
     DROP TABLE IF EXISTS SUBSTRATE_PRETREAT_ORDER;
 
