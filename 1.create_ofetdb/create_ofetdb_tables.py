@@ -261,7 +261,7 @@ cur.execute(
         treatment_type                  VARCHAR(30),
         params                          JSONB,
         meta                            JSONB,
-        UNIQUE(postprocess_step_id, treatment_type, params, meta)
+        UNIQUE(treatment_type, params, meta)
     );
     
     CREATE TABLE IF NOT EXISTS POSTPROCESS_ORDER (
@@ -304,9 +304,8 @@ cur.execute(
         substrate_pretreat_id   INT,
         film_deposition_id      INT,
         postprocess_id          INT,
-        meta                    JSONB,
         
-        UNIQUE(process_id, solution_id, solution_treatment_id, device_fab_id, substrate_pretreat_id, film_deposition_id, postprocess_id, meta),
+        UNIQUE(solution_id, solution_treatment_id, device_fab_id, substrate_pretreat_id, film_deposition_id, postprocess_id),
         
         FOREIGN KEY(solution_id) REFERENCES SOLUTION(solution_id)
             ON DELETE SET NULL ON UPDATE CASCADE,
@@ -346,9 +345,8 @@ cur.execute(
         sample_id       SERIAL          PRIMARY KEY,
         exp_id          INT,
         process_id      INT,
-        meta            JSONB,
         
-        UNIQUE(sample_id, exp_id, process_id, meta),
+        UNIQUE(exp_id, process_id),
         FOREIGN KEY(exp_id) REFERENCES EXPERIMENT_INFO(exp_id)
             ON DELETE SET NULL ON UPDATE CASCADE,
         FOREIGN KEY(process_id) REFERENCES OFET_PROCESS(process_id)
@@ -380,11 +378,10 @@ cur.execute(
         measurement_id      SERIAL          PRIMARY KEY,
         sample_id           INT,
         measurement_type    VARCHAR(30),
-        filepath            VARCHAR(500),
         data                JSONB,
         meta                JSONB,
         
-        UNIQUE(measurement_id, sample_id),
+        UNIQUE(sample_id,measurement_type,data,meta),
         FOREIGN KEY(sample_id) REFERENCES SAMPLE(sample_id)
             ON DELETE SET NULL ON UPDATE CASCADE
 
