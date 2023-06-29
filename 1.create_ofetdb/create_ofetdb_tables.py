@@ -46,7 +46,7 @@ cur.execute(
     '''
     CREATE TABLE IF NOT EXISTS SOLUTION (
         solution_id             SERIAL          PRIMARY KEY,
-        concentration           FLOAT                  
+        concentration           FLOAT
     );
     
     CREATE TABLE IF NOT EXISTS SOLVENT (    
@@ -75,7 +75,8 @@ cur.execute(
         FOREIGN KEY(solvent_id) REFERENCES SOLVENT(pubchem_cid)
             ON DELETE SET NULL ON UPDATE CASCADE,
         FOREIGN KEY(solution_id) REFERENCES SOLUTION(solution_id)
-            ON DELETE SET NULL ON UPDATE CASCADE
+            ON DELETE SET NULL ON UPDATE CASCADE,
+        UNIQUE (solution_id,solvent_id,vol_frac)
     );
 
     CREATE TABLE IF NOT EXISTS SOLUTION_MAKEUP_POLYMER (
@@ -84,6 +85,7 @@ cur.execute(
         wt_frac                 FLOAT,
         
         PRIMARY KEY(solution_id, polymer_id),
+        UNIQUE (solution_id, polymer_id, wt_frac),
         FOREIGN KEY(polymer_id) REFERENCES POLYMER(polymer_id)
             ON DELETE SET NULL ON UPDATE CASCADE,
         FOREIGN KEY(solution_id) REFERENCES SOLUTION(solution_id)
