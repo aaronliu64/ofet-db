@@ -5,9 +5,9 @@
 import psycopg2
 
 kwargs = {
-    'database': 'ofetdb_testenv',
+    'database': 'ofetdb_testenv_ML',
     'user': 'postgres',
-    'password': 'Rahul2411!',
+    'password': 'myL220q1W@',
     'host': '127.0.0.1',
     'port': '5432'
 }
@@ -244,6 +244,7 @@ conn.commit()
 print("Operation successful")
 conn.close()
 
+
 # %% Create Tables for POSTPROCESS
 
 conn = psycopg2.connect(**kwargs)
@@ -347,10 +348,8 @@ cur.execute(
         sample_id       SERIAL          PRIMARY KEY,
         exp_id          INT,
         process_id      INT,
-        meta            JSONB,
         
-        
-        UNIQUE(exp_id, process_id, meta),
+        UNIQUE(exp_id, process_id),
         FOREIGN KEY(exp_id) REFERENCES EXPERIMENT_INFO(exp_id)
             ON DELETE SET NULL ON UPDATE CASCADE,
         FOREIGN KEY(process_id) REFERENCES OFET_PROCESS(process_id)
