@@ -5,11 +5,11 @@
 import psycopg2
 
 kwargs = {
-    "host"      : "localhost",
-    "database"  : "ofetdb_testenv",
-    "user"      : "postgres",
-    "password"  : "password",
-    "port"      : "5432",
+    'database': 'ofetdb_testenv',
+    'user': 'postgres',
+    'password': 'password',
+    'host': '127.0.0.1',
+    'port': '5432'
 }
 
 # %% Create Tables for EXPERIMENT_INFO
@@ -21,8 +21,6 @@ print("Connnection Successful")
 cur = conn.cursor()
 cur.execute(
     '''
-    DROP TABLE IF EXISTS EXPERIMENT_INFO;
-    
     CREATE TABLE IF NOT EXISTS EXPERIMENT_INFO (
         exp_id              SERIAL          PRIMARY KEY,
         citation_type       VARCHAR(20),
@@ -46,24 +44,16 @@ print("Connnection Successful")
 cur = conn.cursor()
 cur.execute(
     '''
-    DROP TABLE IF EXISTS SOLUTION;
-
-    
     CREATE TABLE IF NOT EXISTS SOLUTION (
         solution_id             SERIAL          PRIMARY KEY,
-        concentration           FLOAT                  
+        concentration           FLOAT
     );
     
-    DROP TABLE IF EXISTS SOLVENT;
-
     CREATE TABLE IF NOT EXISTS SOLVENT (    
         pubchem_cid             INT         PRIMARY KEY,
         iupac_name              VARCHAR(50),
         UNIQUE(iupac_name)          
     );
-    
-    DROP TABLE IF EXISTS POLYMER;
-
     
     CREATE TABLE IF NOT EXISTS POLYMER (
         polymer_id              SERIAL          PRIMARY KEY,
@@ -76,9 +66,6 @@ cur.execute(
         UNIQUE(common_name, iupac_name, mn, mw, dispersity, meta)       
     );
     
-    DROP TABLE IF EXISTS SOLUTION_MAKEUP_SOLVENT;
-
-    
     CREATE TABLE IF NOT EXISTS SOLUTION_MAKEUP_SOLVENT (
         solution_id             INT             NOT NULL,
         solvent_id              INT,
@@ -88,10 +75,9 @@ cur.execute(
         FOREIGN KEY(solvent_id) REFERENCES SOLVENT(pubchem_cid)
             ON DELETE SET NULL ON UPDATE CASCADE,
         FOREIGN KEY(solution_id) REFERENCES SOLUTION(solution_id)
-            ON DELETE SET NULL ON UPDATE CASCADE
+            ON DELETE SET NULL ON UPDATE CASCADE,
+        UNIQUE (solution_id,solvent_id,vol_frac)
     );
-    
-    DROP TABLE IF EXISTS SOLUTION_MAKEUP_POLYMER;
 
     CREATE TABLE IF NOT EXISTS SOLUTION_MAKEUP_POLYMER (
         solution_id             INT,
@@ -99,6 +85,7 @@ cur.execute(
         wt_frac                 FLOAT,
         
         PRIMARY KEY(solution_id, polymer_id),
+        UNIQUE (solution_id, polymer_id, wt_frac),
         FOREIGN KEY(polymer_id) REFERENCES POLYMER(polymer_id)
             ON DELETE SET NULL ON UPDATE CASCADE,
         FOREIGN KEY(solution_id) REFERENCES SOLUTION(solution_id)
@@ -123,14 +110,9 @@ cur = conn.cursor()
 cur.execute(
     '''
     
-    DROP TABLE IF EXISTS SOLUTION_TREATMENT;
-    
     CREATE TABLE IF NOT EXISTS SOLUTION_TREATMENT (
         solution_treatment_id           SERIAL          PRIMARY KEY
     );
-    
-    DROP TABLE IF EXISTS  SOLUTION_TREATMENT_STEP;
-
     
     CREATE TABLE IF NOT EXISTS SOLUTION_TREATMENT_STEP (
         solution_treatment_step_id      SERIAL          PRIMARY KEY,
@@ -140,9 +122,6 @@ cur.execute(
         UNIQUE(treatment_type, params, meta)
     );
     
-    DROP TABLE IF EXISTS  SOLUTION_TREATMENT_ORDER;
-
-   
     CREATE TABLE IF NOT EXISTS SOLUTION_TREATMENT_ORDER (
         solution_treatment_id           INT,
         process_order                   INT,
@@ -175,8 +154,6 @@ print("Connnection Successful")
 cur = conn.cursor()
 cur.execute(
     '''
-    DROP TABLE IF EXISTS DEVICE_FABRICATION;
-
     
     CREATE TABLE IF NOT EXISTS DEVICE_FABRICATION (
         device_fab_id       SERIAL      PRIMARY KEY,
@@ -204,24 +181,18 @@ print("Connnection Successful")
 cur = conn.cursor()
 cur.execute(
     '''
-    DROP TABLE IF EXISTS SUBSTRATE_PRETREAT;
-
     
     CREATE TABLE IF NOT EXISTS SUBSTRATE_PRETREAT (
         substrate_pretreat_id           SERIAL          PRIMARY KEY
-    );    
-    DROP TABLE IF EXISTS SUBSTRATE_PRETREAT_STEP;
-
+    );
     
     CREATE TABLE IF NOT EXISTS SUBSTRATE_PRETREAT_STEP (
         substrate_pretreat_step_id      SERIAL          PRIMARY KEY,
         treatment_type                  VARCHAR(20),
         params                      JSONB,
         meta                        JSONB,
-        UNIQUE(substrate_pretreat_step_id)
-    );    
-    DROP TABLE IF EXISTS SUBSTRATE_PRETREAT_ORDER;
-
+        UNIQUE(treatment_type, params, meta)
+    );
     
     CREATE TABLE IF NOT EXISTS SUBSTRATE_PRETREAT_ORDER (
         substrate_pretreat_id           INT,
@@ -253,9 +224,7 @@ print("Connnection Successful")
 
 cur = conn.cursor()
 cur.execute(
-    '''    
-    DROP TABLE IF EXISTS FILM_DEPOSITION;
-
+    '''
     
     CREATE TABLE IF NOT EXISTS FILM_DEPOSITION (
         film_deposition_id      SERIAL          PRIMARY KEY,
@@ -283,25 +252,19 @@ print("Connnection Successful")
 
 cur = conn.cursor()
 cur.execute(
-    '''    
-    DROP TABLE IF EXISTS POSTPROCESSN;
-
+    '''
 
     CREATE TABLE IF NOT EXISTS POSTPROCESS (
         postprocess_id                  SERIAL          PRIMARY KEY
-    );    
-    DROP TABLE IF EXISTS POSTPROCESS_STEP;
-
+    );
 
     CREATE TABLE IF NOT EXISTS POSTPROCESS_STEP (
         postprocess_step_id             SERIAL          PRIMARY KEY,
         treatment_type                  VARCHAR(30),
         params                          JSONB,
         meta                            JSONB,
-        UNIQUE(postprocess_step_id, treatment_type, params, meta)
-    );    
-    DROP TABLE IF EXISTS POSTPROCESS_ORDER;
-
+        UNIQUE(treatment_type, params, meta)
+    );
     
     CREATE TABLE IF NOT EXISTS POSTPROCESS_ORDER (
         postprocess_id                  INT,
@@ -333,9 +296,7 @@ print("Connnection Successful")
 
 cur = conn.cursor()
 cur.execute(
-    '''    
-    DROP TABLE IF EXISTS OFET_PROCESS;
-
+    '''
     
     CREATE TABLE IF NOT EXISTS OFET_PROCESS (
         process_id              SERIAL          PRIMARY KEY,
@@ -345,9 +306,8 @@ cur.execute(
         substrate_pretreat_id   INT,
         film_deposition_id      INT,
         postprocess_id          INT,
-        meta                    JSONB,
         
-        UNIQUE(process_id, solution_id, solution_treatment_id, device_fab_id, substrate_pretreat_id, film_deposition_id, postprocess_id, meta),
+        UNIQUE(solution_id, solution_treatment_id, device_fab_id, substrate_pretreat_id, film_deposition_id, postprocess_id),
         
         FOREIGN KEY(solution_id) REFERENCES SOLUTION(solution_id)
             ON DELETE SET NULL ON UPDATE CASCADE,
@@ -381,17 +341,14 @@ print("Connnection Successful")
 
 cur = conn.cursor()
 cur.execute(
-    '''    
-    DROP TABLE IF EXISTS SAMPLE;
-
+    '''
     
     CREATE TABLE IF NOT EXISTS SAMPLE (
         sample_id       SERIAL          PRIMARY KEY,
         exp_id          INT,
         process_id      INT,
-        meta            JSONB,
         
-        UNIQUE(sample_id, exp_id, process_id, meta),
+        UNIQUE(exp_id, process_id),
         FOREIGN KEY(exp_id) REFERENCES EXPERIMENT_INFO(exp_id)
             ON DELETE SET NULL ON UPDATE CASCADE,
         FOREIGN KEY(process_id) REFERENCES OFET_PROCESS(process_id)
@@ -417,19 +374,16 @@ print("Connnection Successful")
 
 cur = conn.cursor()
 cur.execute(
-    '''    
-    DROP TABLE IF EXISTS MEASUREMENT;
-
+    '''
     
     CREATE TABLE IF NOT EXISTS MEASUREMENT (
         measurement_id      SERIAL          PRIMARY KEY,
         sample_id           INT,
         measurement_type    VARCHAR(30),
-        filepath            VARCHAR(500),
         data                JSONB,
         meta                JSONB,
         
-        UNIQUE(measurement_id, sample_id),
+        UNIQUE(sample_id,measurement_type,data,meta),
         FOREIGN KEY(sample_id) REFERENCES SAMPLE(sample_id)
             ON DELETE SET NULL ON UPDATE CASCADE
 
