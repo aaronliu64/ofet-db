@@ -347,8 +347,10 @@ cur.execute(
         sample_id       SERIAL          PRIMARY KEY,
         exp_id          INT,
         process_id      INT,
+        meta            JSONB,
         
-        UNIQUE(exp_id, process_id),
+        
+        UNIQUE(exp_id, process_id, meta),
         FOREIGN KEY(exp_id) REFERENCES EXPERIMENT_INFO(exp_id)
             ON DELETE SET NULL ON UPDATE CASCADE,
         FOREIGN KEY(process_id) REFERENCES OFET_PROCESS(process_id)
