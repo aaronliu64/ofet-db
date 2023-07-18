@@ -38,7 +38,7 @@ pg.extensions.register_adapter(float, nan_to_null)
 
 param_dict = {
     "host"      : "127.0.0.1",
-    "database"  : "ofetdb_testenv",
+    "database"  : "ofetdb_testenv_RV",
     "user"      : "postgres",
     "password"  : "Rahul2411!", #your  password here
     "port"      : "5432",
